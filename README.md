@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ClubNexus - Centralized Platform for College Technical Clubs
 
 ![ClubNexus Banner](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
@@ -335,3 +336,7 @@ For support, please:
 ---
 
 **Built with ❤️ for college technical clubs worldwide**
+=======
+# Team-Archer
+Techclub Website
+>>>>>>> c1561f01c4360c5b2d3fe96d416c63096bca76ec
