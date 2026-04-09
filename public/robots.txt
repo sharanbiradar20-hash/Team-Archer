@@ -1,0 +1,32 @@
+# ClubNexus - Robots.txt
+# https://clubnexus.app
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /_next/
+
+# Sitemap location
+Sitemap: https://clubnexus.app/sitemap.xml
+
+# Crawl-delay for rate limiting (optional)
+Crawl-delay: 1
+
+# Google AdsBot
+User-agent: AdsBot-Google
+Allow: /
+
+# Google Image Bot
+User-agent: Googlebot-Image
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Bing Bot
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Crawl-delay: 1
