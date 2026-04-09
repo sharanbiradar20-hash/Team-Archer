@@ -135,8 +135,8 @@ export default function AnnouncementTicker() {
             <div className={`p-2 rounded-lg ${announcement.bg}`}>
               <announcement.icon className={`w-5 h-5 ${announcement.color}`} />
             </div>
-            <div className="text-left">
-              <p className="font-medium text-sm">{announcement.title}</p>
+            <div className="text-left min-w-0">
+              <p className="font-medium text-sm truncate">{announcement.title}</p>
               <p className="text-text-secondary text-xs truncate">{announcement.description}</p>
             </div>
           </button>
