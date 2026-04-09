@@ -78,7 +78,7 @@ export default function Footer() {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-text-primary">Quick Links</h4>
             <ul className="space-y-2">
-              {NAV_LINKS.map((link) => (
+              {NAV_LINKS.filter(link => !link.auth).map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}

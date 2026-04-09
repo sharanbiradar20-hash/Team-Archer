@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Shield, Users, Calendar, Target, FileText, Image, Settings, BarChart3, Eye, Edit, Trash2, CheckCircle, XCircle, MoreVertical, Search, Filter, Download, Upload } from "lucide-react"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 
 // Mock data for admin dashboard
 const adminStats = [
@@ -35,7 +36,36 @@ const pendingSubmissions = [
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview")
   const [searchQuery, setSearchQuery] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const supabase = createClient()
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error("Please login to access admin panel")
+        router.push("/login")
+        return
+      }
+      if (user.email !== "sharanbiradar20@gmail.com") {
+        toast.error("Not Authorized")
+        router.push("/")
+        return
+      }
+      setIsLoading(false)
+    }
+    checkAuth()
+  }, [router, supabase])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-secondary border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-text-secondary">Verifying Admin Access...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-bg-primary">

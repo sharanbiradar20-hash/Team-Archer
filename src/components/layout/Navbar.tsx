@@ -27,7 +27,11 @@ export default function Navbar() {
     router.refresh()
   }
 
-  const navItems = NAV_LINKS.map((link) => ({
+  const navItems = NAV_LINKS.filter((link) => {
+    if (link.label === "Admin") return user?.email === "sharanbiradar20@gmail.com";
+    if (link.label === "Dashboard") return false; // Dashboard is handled in Auth Section
+    return true;
+  }).map((link) => ({
     ...link,
     icon: getIcon(link.label),
   }))
