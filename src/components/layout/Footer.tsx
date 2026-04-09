@@ -1,9 +1,22 @@
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
 import { Code2, MessageCircle, Briefcase, Mail, Heart, Code, Trophy, Users } from "lucide-react"
 import { SITE_NAME, SITE_DESCRIPTION, NAV_LINKS } from "@/lib/constants"
+import { toast } from "sonner"
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
+  const [email, setEmail] = useState("")
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (email) {
+      toast.success("Subscribed successfully! You'll receive updates at " + email)
+      setEmail("")
+    }
+  }
 
   return (
     <footer className="mt-auto border-t border-border bg-bg-secondary">
@@ -121,11 +134,14 @@ export default function Footer() {
             <p className="text-text-secondary text-sm">
               Subscribe to our newsletter for the latest events, challenges, and club announcements.
             </p>
-            <form className="space-y-2">
+            <form onSubmit={handleSubscribe} className="space-y-2">
               <input
                 type="email"
                 placeholder="Your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg bg-bg-card border border-border focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                required
               />
               <button
                 type="submit"

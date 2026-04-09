@@ -11,6 +11,7 @@ export const NAV_LINKS = [
   { label: "Gallery", href: "/gallery" },
   { label: "Leaderboard", href: "/leaderboard" },
   { label: "Dashboard", href: "/dashboard", auth: true },
+  { label: "Admin", href: "/admin", auth: true },
 ]
 
 export const ADMIN_NAV_LINKS = [

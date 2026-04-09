@@ -1,7 +1,11 @@
-import { Trophy, Filter, Search, Clock, Users, Target, TrendingUp } from "lucide-react"
+"use client"
+
+import { useState, useMemo } from "react"
+import { Trophy, Filter, Search, Clock, Users, Target, TrendingUp, Grid3X3, List, X } from "lucide-react"
 import { CHALLENGE_DIFFICULTIES, CHALLENGE_CATEGORIES } from "@/lib/constants"
 import ChallengeCard from "@/components/challenges/ChallengeCard"
 import { Challenge } from "@/types"
+import { toast } from "sonner"
 
 // Mock data - will be replaced with Supabase query
 const mockChallenges: Challenge[] = [
@@ -14,12 +18,7 @@ const mockChallenges: Challenge[] = [
     category: "full_stack",
     status: "active",
     deadline: "2024-06-30T23:59:59Z",
-    scoring_rules: {
-      functionality: 40,
-      code_quality: 30,
-      ui_ux: 20,
-      documentation: 10,
-    },
+    scoring_rules: { functionality: 40, code_quality: 30, ui_ux: 20, documentation: 10 },
     tags: ["WebSocket", "React", "Node.js", "MongoDB"],
     created_by: null,
     created_at: "2024-01-15T10:00:00Z",
@@ -34,11 +33,7 @@ const mockChallenges: Challenge[] = [
     category: "open_innovation",
     status: "active",
     deadline: "2024-07-15T23:59:59Z",
-    scoring_rules: {
-      accuracy: 50,
-      performance: 30,
-      code_quality: 20,
-    },
+    scoring_rules: { accuracy: 50, performance: 30, code_quality: 20 },
     tags: ["TensorFlow.js", "Machine Learning", "Computer Vision"],
     created_by: null,
     created_at: "2024-02-10T09:30:00Z",
@@ -53,12 +48,7 @@ const mockChallenges: Challenge[] = [
     category: "ui_ux",
     status: "active",
     deadline: "2024-05-31T23:59:59Z",
-    scoring_rules: {
-      design: 40,
-      responsiveness: 30,
-      interactivity: 20,
-      accessibility: 10,
-    },
+    scoring_rules: { design: 40, responsiveness: 30, interactivity: 20, accessibility: 10 },
     tags: ["React", "Tailwind CSS", "Recharts", "Responsive Design"],
     created_by: null,
     created_at: "2024-03-01T11:00:00Z",
@@ -73,12 +63,7 @@ const mockChallenges: Challenge[] = [
     category: "api_design",
     status: "active",
     deadline: "2024-06-20T23:59:59Z",
-    scoring_rules: {
-      functionality: 40,
-      security: 30,
-      documentation: 20,
-      performance: 10,
-    },
+    scoring_rules: { functionality: 40, security: 30, documentation: 20, performance: 10 },
     tags: ["Node.js", "Express", "PostgreSQL", "JWT", "Swagger"],
     created_by: null,
     created_at: "2024-02-20T14:00:00Z",
@@ -93,12 +78,7 @@ const mockChallenges: Challenge[] = [
     category: "open_innovation",
     status: "ended",
     deadline: "2024-04-15T23:59:59Z",
-    scoring_rules: {
-      innovation: 40,
-      security: 30,
-      usability: 20,
-      documentation: 10,
-    },
+    scoring_rules: { innovation: 40, security: 30, usability: 20, documentation: 10 },
     tags: ["Blockchain", "Solidity", "Web3.js", "Ethereum"],
     created_by: null,
     created_at: "2024-01-05T08:00:00Z",
@@ -113,12 +93,7 @@ const mockChallenges: Challenge[] = [
     category: "ui_ux",
     status: "active",
     deadline: "2024-07-10T23:59:59Z",
-    scoring_rules: {
-      functionality: 40,
-      ui_ux: 30,
-      performance: 20,
-      offline_support: 10,
-    },
+    scoring_rules: { functionality: 40, ui_ux: 30, performance: 20, offline_support: 10 },
     tags: ["React Native", "Expo", "Firebase", "Health APIs"],
     created_by: null,
     created_at: "2024-03-10T10:00:00Z",
@@ -126,7 +101,78 @@ const mockChallenges: Challenge[] = [
   },
 ]
 
+const ITEMS_PER_PAGE = 4
+
 export default function ChallengesPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedDifficulties, setSelectedDifficulties] = useState<string[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["active"])
+  const [sortBy, setSortBy] = useState("deadline")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const toggleFilter = (arr: string[], value: string, setter: (v: string[]) => void) => {
+    setter(arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value])
+    setCurrentPage(1)
+  }
+
+  const clearFilters = () => {
+    setSelectedDifficulties([])
+    setSelectedCategories([])
+    setSelectedStatuses([])
+    setSearchQuery("")
+    setCurrentPage(1)
+  }
+
+  const filteredChallenges = useMemo(() => {
+    let result = [...mockChallenges]
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      result = result.filter(c =>
+        c.title.toLowerCase().includes(q) ||
+        c.description.toLowerCase().includes(q) ||
+        c.tags.some(t => t.toLowerCase().includes(q))
+      )
+    }
+
+    if (selectedDifficulties.length > 0) {
+      result = result.filter(c => selectedDifficulties.includes(c.difficulty))
+    }
+
+    if (selectedCategories.length > 0) {
+      result = result.filter(c => selectedCategories.includes(c.category))
+    }
+
+    if (selectedStatuses.length > 0) {
+      result = result.filter(c => selectedStatuses.includes(c.status))
+    }
+
+    switch (sortBy) {
+      case "deadline":
+        result.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+        break
+      case "difficulty":
+        const diffOrder: Record<string, number> = { easy: 0, medium: 1, hard: 2 }
+        result.sort((a, b) => diffOrder[a.difficulty] - diffOrder[b.difficulty])
+        break
+      case "name":
+        result.sort((a, b) => a.title.localeCompare(b.title))
+        break
+    }
+
+    return result
+  }, [searchQuery, selectedDifficulties, selectedCategories, selectedStatuses, sortBy])
+
+  const totalPages = Math.ceil(filteredChallenges.length / ITEMS_PER_PAGE)
+  const paginatedChallenges = filteredChallenges.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  )
+
+  const activeFiltersCount = selectedDifficulties.length + selectedCategories.length + selectedStatuses.length
+
   return (
     <div className="min-h-screen bg-bg-primary">
       {/* Hero Section */}
@@ -151,13 +197,16 @@ export default function ChallengesPage() {
                 <input
                   type="text"
                   placeholder="Search challenges by title, tags, or description..."
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }}
                   className="w-full pl-10 pr-4 py-3 rounded-lg bg-bg-secondary border border-border focus:outline-none focus:ring-2 focus:ring-secondary"
                 />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <X className="w-4 h-4 text-text-tertiary" />
+                  </button>
+                )}
               </div>
-              <button className="px-6 py-3 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2">
-                <Filter size={20} />
-                Filters
-              </button>
             </div>
           </div>
         </div>
@@ -168,7 +217,7 @@ export default function ChallengesPage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2">24</div>
+              <div className="text-3xl font-bold text-primary mb-2">{filteredChallenges.filter(c => c.status === "active").length}</div>
               <div className="text-text-secondary">Active Challenges</div>
             </div>
             <div className="text-center">
@@ -198,6 +247,11 @@ export default function ChallengesPage() {
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <Filter size={20} />
                     Filter Challenges
+                    {activeFiltersCount > 0 && (
+                      <span className="ml-auto text-xs bg-secondary/20 text-secondary px-2 py-1 rounded-full">
+                        {activeFiltersCount}
+                      </span>
+                    )}
                   </h3>
                   
                   <div className="space-y-6">
@@ -206,9 +260,17 @@ export default function ChallengesPage() {
                       <div className="space-y-2">
                         {CHALLENGE_DIFFICULTIES.map((diff) => (
                           <label key={diff.value} className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-bg-primary">
-                            <input type="checkbox" className="rounded border-border" />
+                            <input
+                              type="checkbox"
+                              className="rounded border-border"
+                              checked={selectedDifficulties.includes(diff.value)}
+                              onChange={() => toggleFilter(selectedDifficulties, diff.value, setSelectedDifficulties)}
+                            />
                             <div className="flex items-center gap-2">
-                              <div className={`w-3 h-3 rounded-full bg-${diff.color}-500`} />
+                              <div className={`w-3 h-3 rounded-full ${
+                                diff.color === 'green' ? 'bg-green-500' :
+                                diff.color === 'yellow' ? 'bg-yellow-500' : 'bg-red-500'
+                              }`} />
                               <span>{diff.label}</span>
                             </div>
                           </label>
@@ -221,7 +283,12 @@ export default function ChallengesPage() {
                       <div className="space-y-2">
                         {CHALLENGE_CATEGORIES.map((cat) => (
                           <label key={cat.value} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-bg-primary">
-                            <input type="checkbox" className="rounded border-border" />
+                            <input
+                              type="checkbox"
+                              className="rounded border-border"
+                              checked={selectedCategories.includes(cat.value)}
+                              onChange={() => toggleFilter(selectedCategories, cat.value, setSelectedCategories)}
+                            />
                             <span>{cat.label}</span>
                           </label>
                         ))}
@@ -232,73 +299,39 @@ export default function ChallengesPage() {
                       <h4 className="font-medium mb-3">Status</h4>
                       <div className="space-y-2">
                         <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-bg-primary">
-                          <input type="checkbox" className="rounded border-border" defaultChecked />
+                          <input
+                            type="checkbox"
+                            className="rounded border-border"
+                            checked={selectedStatuses.includes("active")}
+                            onChange={() => toggleFilter(selectedStatuses, "active", setSelectedStatuses)}
+                          />
                           <span className="text-green-500">● Active</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-bg-primary">
-                          <input type="checkbox" className="rounded border-border" />
+                          <input
+                            type="checkbox"
+                            className="rounded border-border"
+                            checked={selectedStatuses.includes("ended")}
+                            onChange={() => toggleFilter(selectedStatuses, "ended", setSelectedStatuses)}
+                          />
                           <span className="text-red-500">● Ended</span>
                         </label>
-                        <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-bg-primary">
-                          <input type="checkbox" className="rounded border-border" />
-                          <span className="text-gray-500">● Draft</span>
-                        </label>
                       </div>
                     </div>
 
-                    <div>
-                      <h4 className="font-medium mb-3">Deadline</h4>
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-bg-primary">
-                          <input type="radio" name="deadline" className="rounded-full border-border" />
-                          <span>This Week</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-bg-primary">
-                          <input type="radio" name="deadline" className="rounded-full border-border" />
-                          <span>This Month</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-bg-primary">
-                          <input type="radio" name="deadline" className="rounded-full border-border" defaultChecked />
-                          <span>Any Time</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    <button className="w-full py-3 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors font-medium">
+                    <button
+                      onClick={() => toast.success("✓ Filters applied successfully")}
+                      className="w-full py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors"
+                    >
                       Apply Filters
                     </button>
-                    <button className="w-full py-2 border border-border rounded-lg hover:bg-bg-secondary transition-colors">
+                    <button
+                      onClick={clearFilters}
+                      className="w-full py-2 border border-border rounded-lg hover:bg-bg-secondary transition-colors"
+                    >
                       Clear All
                     </button>
                   </div>
-                </div>
-
-                <div className="bg-bg-secondary rounded-xl p-6 border border-border">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <TrendingUp size={20} />
-                    Quick Stats
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-text-secondary">Your Rank</span>
-                      <span className="font-semibold text-primary">#42</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-text-secondary">Points Earned</span>
-                      <span className="font-semibold text-secondary">1,250</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-text-secondary">Submissions</span>
-                      <span className="font-semibold">8</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-text-secondary">Badges</span>
-                      <span className="font-semibold text-amber-500">3</span>
-                    </div>
-                  </div>
-                  <button className="w-full mt-4 py-2 border border-secondary text-secondary rounded-lg hover:bg-secondary/10 transition-colors">
-                    View Dashboard
-                  </button>
                 </div>
               </div>
             </aside>
@@ -308,60 +341,117 @@ export default function ChallengesPage() {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
                   <h2 className="text-2xl font-bold">All Challenges</h2>
-                  <p className="text-text-secondary">Showing {mockChallenges.length} challenges</p>
+                  <p className="text-text-secondary">Showing {filteredChallenges.length} challenges</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <select className="px-4 py-2 rounded-lg bg-bg-secondary border border-border focus:outline-none focus:ring-2 focus:ring-secondary">
-                    <option>Sort by: Deadline (Soonest)</option>
-                    <option>Sort by: Difficulty</option>
-                    <option>Sort by: Popularity</option>
-                    <option>Sort by: Points</option>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="px-4 py-2 rounded-lg bg-bg-secondary border border-border focus:outline-none focus:ring-2 focus:ring-secondary"
+                  >
+                    <option value="deadline">Sort by: Deadline (Soonest)</option>
+                    <option value="difficulty">Sort by: Difficulty</option>
+                    <option value="name">Sort by: Name</option>
                   </select>
-                  <button className="px-4 py-2 rounded-lg border border-border hover:bg-bg-secondary transition-colors">
-                    Grid View
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={`px-4 py-2 rounded-lg border border-border transition-colors ${viewMode === "grid" ? "bg-secondary text-white border-secondary" : "hover:bg-bg-secondary"}`}
+                  >
+                    <Grid3X3 className="w-4 h-4" />
                   </button>
-                  <button className="px-4 py-2 rounded-lg border border-border bg-bg-secondary">
-                    List View
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`px-4 py-2 rounded-lg border border-border transition-colors ${viewMode === "list" ? "bg-secondary text-white border-secondary" : "hover:bg-bg-secondary"}`}
+                  >
+                    <List className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              {mockChallenges.length === 0 ? (
+              {paginatedChallenges.length === 0 ? (
                 <div className="text-center py-16">
                   <Target className="w-16 h-16 mx-auto text-text-tertiary mb-4" />
                   <h3 className="text-xl font-semibold mb-2">No challenges found</h3>
-                  <p className="text-text-secondary">Try adjusting your filters or check back later for new challenges.</p>
+                  <p className="text-text-secondary mb-4">Try adjusting your filters or check back later for new challenges.</p>
+                  <button onClick={clearFilters} className="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90">
+                    Clear Filters
+                  </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {mockChallenges.map((challenge) => (
-                    <ChallengeCard key={challenge.id} challenge={challenge} />
-                  ))}
+                <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "space-y-4"}>
+                  {viewMode === "grid" ? (
+                    paginatedChallenges.map((challenge) => (
+                      <ChallengeCard key={challenge.id} challenge={challenge} />
+                    ))
+                  ) : (
+                    paginatedChallenges.map((challenge) => (
+                      <div key={challenge.id} className="bg-bg-secondary rounded-xl border border-border p-4 flex flex-col md:flex-row gap-4 hover:border-secondary/50 transition-colors">
+                        <div className="md:w-16 flex items-start">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-secondary to-primary">
+                            <Trophy className="w-6 h-6 text-white" />
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${challenge.status === 'active' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>{challenge.status}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${challenge.difficulty === 'easy' ? 'bg-green-500/10 text-green-500' : challenge.difficulty === 'medium' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-red-500/10 text-red-500'}`}>{challenge.difficulty}</span>
+                            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary">{challenge.category.replace('_', ' ')}</span>
+                          </div>
+                          <h3 className="text-lg font-bold mb-1">{challenge.title}</h3>
+                          <p className="text-text-secondary text-sm line-clamp-1 mb-2">{challenge.description}</p>
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {challenge.tags.slice(0, 3).map((tag, i) => (
+                              <span key={i} className="px-2 py-0.5 rounded-full text-xs bg-bg-primary text-text-secondary border border-border">{tag}</span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="md:w-32 flex flex-col items-end justify-between">
+                          <div className="text-right">
+                            <div className="text-sm text-text-secondary">Deadline</div>
+                            <div className="font-medium text-sm">{new Date(challenge.deadline).toLocaleDateString()}</div>
+                          </div>
+                          <a href={`/challenges/${challenge.id}`} className="text-secondary hover:text-secondary/80 font-medium text-sm">View Details →</a>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
 
               {/* Pagination */}
-              <div className="flex justify-center mt-12">
-                <nav className="flex items-center gap-2">
-                  <button className="px-4 py-2 rounded-lg border border-border hover:bg-bg-secondary transition-colors">
-                    Previous
-                  </button>
-                  <button className="px-4 py-2 rounded-lg bg-secondary text-white">1</button>
-                  <button className="px-4 py-2 rounded-lg border border-border hover:bg-bg-secondary transition-colors">
-                    2
-                  </button>
-                  <button className="px-4 py-2 rounded-lg border border-border hover:bg-bg-secondary transition-colors">
-                    3
-                  </button>
-                  <span className="px-2">...</span>
-                  <button className="px-4 py-2 rounded-lg border border-border hover:bg-bg-secondary transition-colors">
-                    8
-                  </button>
-                  <button className="px-4 py-2 rounded-lg border border-border hover:bg-bg-secondary transition-colors">
-                    Next
-                  </button>
-                </nav>
-              </div>
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-12">
+                  <nav className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="px-4 py-2 rounded-lg border border-border hover:bg-bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-4 py-2 rounded-lg transition-colors ${
+                          currentPage === page
+                            ? "bg-secondary text-white"
+                            : "border border-border hover:bg-bg-secondary"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="px-4 py-2 rounded-lg border border-border hover:bg-bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </nav>
+                </div>
+              )}
             </main>
           </div>
         </div>

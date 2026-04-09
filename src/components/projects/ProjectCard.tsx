@@ -5,6 +5,7 @@ import { Heart, Eye, ExternalLink, Star, Users, Calendar, Award, Code2 } from "l
 import { Project } from "@/types";
 import { formatDate } from "@/lib/utils";
 import { useState } from "react";
+import Link from "next/link";
 
 interface ProjectCardProps {
   project: Project;
@@ -53,13 +54,14 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       className="group bg-bg-secondary border border-border rounded-2xl overflow-hidden hover:border-secondary/50 transition-all"
     >
       {/* Thumbnail */}
-      <div className="relative h-48 overflow-hidden">
-        <img
-          src={project.thumbnail_url || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop"}
-          alt={project.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      <Link href={`/projects/${project.id}`}>
+        <div className="relative h-48 overflow-hidden">
+          <img
+            src={project.thumbnail_url || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop"}
+            alt={project.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         
         {/* Status Badge */}
         <div className="absolute top-4 left-4">
@@ -100,14 +102,17 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             </a>
           )}
         </div>
-      </div>
+        </div>
+      </Link>
 
       {/* Content */}
       <div className="p-6">
         <div className="flex items-start justify-between mb-3">
-          <h3 className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">
-            {project.title}
-          </h3>
+          <Link href={`/projects/${project.id}`} className="group/link">
+            <h3 className="text-xl font-bold group-hover/link:text-primary transition-colors line-clamp-1">
+              {project.title}
+            </h3>
+          </Link>
           {project.is_featured && (
             <Star className="w-5 h-5 text-amber-500 flex-shrink-0 ml-2" />
           )}

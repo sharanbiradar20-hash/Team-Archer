@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { ArrowLeft, Download, Share2, Maximize2, X, ChevronLeft, ChevronRight, Image as ImageIcon, Calendar, User, Heart, Eye } from "lucide-react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
+import { toast } from "sonner"
 
 // Mock data
 const mockAlbum = {
@@ -260,11 +261,33 @@ export default function AlbumPage({ params }: AlbumPageProps) {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-4">
-                  <button className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-white rounded-xl hover:bg-secondary/90 transition-colors font-medium">
+                  <button
+                    onClick={() => {
+                      toast.success("Downloading all photos... This may take a moment.")
+                      // In production, this would trigger a zip download
+                    }}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-white rounded-xl hover:bg-secondary/90 transition-colors font-medium"
+                  >
                     <Download className="w-5 h-5" />
                     Download All
                   </button>
-                  <button className="inline-flex items-center gap-2 px-6 py-3 bg-bg-secondary border border-border text-text-primary rounded-xl hover:bg-bg-tertiary transition-colors font-medium">
+                  <button
+                    onClick={async () => {
+                      const url = window.location.href
+                      try {
+                        if (navigator.share) {
+                          await navigator.share({ title: mockAlbum.title, url })
+                        } else {
+                          await navigator.clipboard.writeText(url)
+                          toast.success("Album link copied to clipboard!")
+                        }
+                      } catch {
+                        await navigator.clipboard.writeText(url)
+                        toast.success("Album link copied to clipboard!")
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-bg-secondary border border-border text-text-primary rounded-xl hover:bg-bg-tertiary transition-colors font-medium"
+                  >
                     <Share2 className="w-5 h-5" />
                     Share Album
                   </button>

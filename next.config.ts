@@ -10,8 +10,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Enable static exports for Vercel
-  output: "standalone",
   // Compress bundles
   compress: true,
   // Enable source maps in production for debugging

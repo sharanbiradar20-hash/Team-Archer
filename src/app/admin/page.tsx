@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { Shield, Users, Calendar, Target, FileText, Image, Settings, BarChart3, Eye, Edit, Trash2, CheckCircle, XCircle, MoreVertical, Search, Filter, Download, Upload } from "lucide-react"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 // Mock data for admin dashboard
 const adminStats = [
@@ -33,6 +35,7 @@ const pendingSubmissions = [
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview")
   const [searchQuery, setSearchQuery] = useState("")
+  const router = useRouter()
 
   return (
     <div className="min-h-screen bg-bg-primary">
@@ -60,7 +63,7 @@ export default function AdminDashboard() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <button className="px-5 py-2.5 rounded-xl bg-secondary text-white font-medium hover:bg-secondary/90 transition-colors">
+              <button onClick={() => toast.success("Data export started. Check your downloads shortly.")} className="px-5 py-2.5 rounded-xl bg-secondary text-white font-medium hover:bg-secondary/90 transition-colors">
                 <span className="flex items-center gap-2">
                   <Upload className="w-5 h-5" />
                   Export Data
@@ -236,13 +239,13 @@ export default function AdminDashboard() {
                     <div className="flex items-center justify-between text-sm">
                       <div className="text-text-secondary">{submission.submitted}</div>
                       <div className="flex items-center gap-2">
-                        <button className="p-1.5 rounded-lg border border-border hover:bg-green-500/10 hover:text-green-500 transition-colors">
+                        <button onClick={() => toast.success(`Approved: ${submission.user}`)} className="p-1.5 rounded-lg border border-border hover:bg-green-500/10 hover:text-green-500 transition-colors">
                           <CheckCircle className="w-4 h-4" />
                         </button>
-                        <button className="p-1.5 rounded-lg border border-border hover:bg-red-500/10 hover:text-red-500 transition-colors">
+                        <button onClick={() => toast.error(`Rejected: ${submission.user}`)} className="p-1.5 rounded-lg border border-border hover:bg-red-500/10 hover:text-red-500 transition-colors">
                           <XCircle className="w-4 h-4" />
                         </button>
-                        <button className="p-1.5 rounded-lg border border-border hover:bg-bg-secondary transition-colors">
+                        <button onClick={() => toast.info(`More options for: ${submission.user}`)} className="p-1.5 rounded-lg border border-border hover:bg-bg-secondary transition-colors">
                           <MoreVertical className="w-4 h-4" />
                         </button>
                       </div>
@@ -259,25 +262,25 @@ export default function AdminDashboard() {
                 Quick Actions
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                <button className="bg-bg-primary rounded-xl border border-border p-4 hover:border-secondary transition-colors text-center">
+                <button onClick={() => { toast.success("Navigating to create event..."); router.push('/events') }} className="bg-bg-primary rounded-xl border border-border p-4 hover:border-secondary transition-colors text-center">
                   <div className="w-10 h-10 mx-auto mb-3 rounded-lg bg-secondary/10 flex items-center justify-center">
                     <Calendar className="w-5 h-5 text-secondary" />
                   </div>
                   <div className="font-medium text-sm">Create Event</div>
                 </button>
-                <button className="bg-bg-primary rounded-xl border border-border p-4 hover:border-secondary transition-colors text-center">
+                <button onClick={() => { toast.success("Navigating to create challenge..."); router.push('/challenges') }} className="bg-bg-primary rounded-xl border border-border p-4 hover:border-secondary transition-colors text-center">
                   <div className="w-10 h-10 mx-auto mb-3 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Target className="w-5 h-5 text-primary" />
                   </div>
                   <div className="font-medium text-sm">New Challenge</div>
                 </button>
-                <button className="bg-bg-primary rounded-xl border border-border p-4 hover:border-secondary transition-colors text-center">
+                <button onClick={() => toast.success("Invite link copied to clipboard!")} className="bg-bg-primary rounded-xl border border-border p-4 hover:border-secondary transition-colors text-center">
                   <div className="w-10 h-10 mx-auto mb-3 rounded-lg bg-green-500/10 flex items-center justify-center">
                     <Users className="w-5 h-5 text-green-500" />
                   </div>
                   <div className="font-medium text-sm">Invite Users</div>
                 </button>
-                <button className="bg-bg-primary rounded-xl border border-border p-4 hover:border-secondary transition-colors text-center">
+                <button onClick={() => toast.success("Analytics dashboard loading...")} className="bg-bg-primary rounded-xl border border-border p-4 hover:border-secondary transition-colors text-center">
                   <div className="w-10 h-10 mx-auto mb-3 rounded-lg bg-amber-500/10 flex items-center justify-center">
                     <BarChart3 className="w-5 h-5 text-amber-500" />
                   </div>

@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, User, LogIn, LogOut, Home, Trophy, Users, Calendar, Image, Code, LayoutDashboard } from "lucide-react"
+import { Menu, X, User, LogIn, LogOut, Home, Trophy, Users, Calendar, Image, Code, LayoutDashboard, Shield } from "lucide-react"
 import { NAV_LINKS, SITE_NAME } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -15,10 +15,10 @@ export default function Navbar() {
   const supabase = createClient()
   const router = useRouter()
 
-  // In a real app, you would fetch user session here
-  // useEffect(() => {
-  //   supabase.auth.getUser().then(({ data }) => setUser(data.user))
-  // }, [])
+  // Check user session on mount
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user)).catch(() => {})
+  }, [])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -193,6 +193,8 @@ function getIcon(label: string) {
       return Trophy
     case "dashboard":
       return LayoutDashboard
+    case "admin":
+      return Shield
     default:
       return Home
   }

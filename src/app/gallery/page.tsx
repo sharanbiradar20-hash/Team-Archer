@@ -1,6 +1,10 @@
+"use client"
+
+import { useState } from "react"
 import { GalleryAlbum } from "@/types"
-import { Image, Folder, Calendar, User } from "lucide-react"
+import { Image, Folder, Calendar, User, X, Upload } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 // Mock data
 const mockAlbums: GalleryAlbum[] = [
@@ -61,8 +65,81 @@ const mockAlbums: GalleryAlbum[] = [
 ]
 
 export default function GalleryPage() {
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [albumTitle, setAlbumTitle] = useState("")
+  const [eventName, setEventName] = useState("")
+  const [eventDate, setEventDate] = useState("")
+
+  const handleCreateAlbum = (e: React.FormEvent) => {
+    e.preventDefault()
+    toast.success(`Album "${albumTitle}" created successfully!`)
+    setShowCreateModal(false)
+    setAlbumTitle("")
+    setEventName("")
+    setEventDate("")
+  }
+
   return (
     <div className="min-h-screen bg-bg-primary">
+      {/* Create Album Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-bg-secondary border border-border rounded-2xl p-8 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">Create New Album</h2>
+              <button onClick={() => setShowCreateModal(false)} className="p-2 rounded-lg hover:bg-bg-primary transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateAlbum} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Album Title</label>
+                <input
+                  type="text"
+                  value={albumTitle}
+                  onChange={(e) => setAlbumTitle(e.target.value)}
+                  placeholder="e.g., Hackathon 2024 Finals"
+                  className="w-full px-4 py-3 rounded-xl bg-bg-primary border border-border focus:outline-none focus:ring-2 focus:ring-secondary"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Event Name</label>
+                <input
+                  type="text"
+                  value={eventName}
+                  onChange={(e) => setEventName(e.target.value)}
+                  placeholder="e.g., Annual Hackathon"
+                  className="w-full px-4 py-3 rounded-xl bg-bg-primary border border-border focus:outline-none focus:ring-2 focus:ring-secondary"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Event Date</label>
+                <input
+                  type="date"
+                  value={eventDate}
+                  onChange={(e) => setEventDate(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-bg-primary border border-border focus:outline-none focus:ring-2 focus:ring-secondary"
+                  required
+                />
+              </div>
+              <div className="border-2 border-dashed border-border rounded-xl p-6 text-center">
+                <Upload className="w-8 h-8 mx-auto mb-2 text-text-secondary" />
+                <p className="text-sm text-text-secondary">Drag & drop cover image or click to browse</p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 py-3 rounded-xl border border-border hover:bg-bg-primary transition-colors font-medium">
+                  Cancel
+                </button>
+                <button type="submit" className="flex-1 py-3 rounded-xl bg-secondary text-white hover:bg-secondary/90 transition-colors font-medium">
+                  Create Album
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-secondary/20 via-transparent to-bg-primary" />
@@ -106,8 +183,10 @@ export default function GalleryPage() {
               <option>Oldest First</option>
               <option>Most Photos</option>
             </select>
-            <button className="px-5 py-2.5 rounded-xl bg-secondary text-white font-medium hover:bg-secondary/90 transition-colors">
-              <span className="flex items-center gap-2">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="px-5 py-2.5 rounded-xl bg-secondary text-white font-medium hover:bg-secondary/90 transition-colors"
+            >              <span className="flex items-center gap-2">
                 <Folder className="w-5 h-5" />
                 Create Album
               </span>

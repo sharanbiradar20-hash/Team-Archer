@@ -24,8 +24,36 @@ const badgeFilters = ["All Badges", "Legend", "Expert", "Contributor", "Newbie"]
 export default function LeaderboardPage() {
   const [timeFilter, setTimeFilter] = useState("All Time")
   const [badgeFilter, setBadgeFilter] = useState("All Badges")
-  const [leaderboard, setLeaderboard] = useState(mockLeaderboardData)
   const [isRefreshing, setIsRefreshing] = useState(false)
+
+  // Simulate different data for different time periods
+  const getFilteredData = () => {
+    let data = [...mockLeaderboardData]
+
+    // Simulate different scores for different time periods
+    if (timeFilter === "This Month") {
+      data = data.map(m => ({ ...m, score: Math.round(m.score * 0.3), streak: Math.min(m.streak, 7) }))
+        .sort((a, b) => b.score - a.score)
+        .map((m, i) => ({ ...m, rank: i + 1 }))
+    } else if (timeFilter === "This Week") {
+      data = data.map(m => ({ ...m, score: Math.round(m.score * 0.1), streak: Math.min(m.streak, 3) }))
+        .sort((a, b) => b.score - a.score)
+        .map((m, i) => ({ ...m, rank: i + 1 }))
+    } else if (timeFilter === "Today") {
+      data = data.map(m => ({ ...m, score: Math.round(m.score * 0.02), streak: m.streak > 0 ? 1 : 0 }))
+        .sort((a, b) => b.score - a.score)
+        .map((m, i) => ({ ...m, rank: i + 1 }))
+    }
+
+    // Apply badge filter
+    if (badgeFilter !== "All Badges") {
+      data = data.filter(m => m.badge === badgeFilter)
+    }
+
+    return data
+  }
+
+  const leaderboard = getFilteredData()
 
   const handleRefresh = () => {
     setIsRefreshing(true)

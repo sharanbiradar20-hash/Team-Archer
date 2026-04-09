@@ -1,8 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { User, Trophy, Target, Calendar, Award, TrendingUp, BarChart3, PieChart, Activity, Zap, Star, Clock, Users, FileText, Code, Heart, Crown } from "lucide-react"
+import { User, Trophy, Target, Calendar, Award, TrendingUp, BarChart3, PieChart, Activity, Zap, Star, Clock, Users, FileText, Code, Heart, Crown, Share2 } from "lucide-react"
 import { motion } from "framer-motion"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 // Mock data for dashboard
 const userStats = {
@@ -46,6 +48,22 @@ const recentActivities = [
 
 export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState("This Month")
+  const router = useRouter()
+
+  const handleShareProfile = async () => {
+    const url = window.location.href
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `${userStats.name} - ClubNexus Profile`, url })
+      } else {
+        await navigator.clipboard.writeText(url)
+        toast.success("Profile link copied to clipboard!")
+      }
+    } catch {
+      await navigator.clipboard.writeText(url)
+      toast.success("Profile link copied to clipboard!")
+    }
+  }
 
   return (
     <div className="min-h-screen bg-bg-primary">
@@ -67,7 +85,11 @@ export default function DashboardPage() {
               <option>Last Month</option>
               <option>All Time</option>
             </select>
-            <button className="px-5 py-2.5 rounded-xl bg-secondary text-white font-medium hover:bg-secondary/90 transition-colors">
+            <button
+              onClick={handleShareProfile}
+              className="px-5 py-2.5 rounded-xl bg-secondary text-white font-medium hover:bg-secondary/90 transition-colors flex items-center gap-2"
+            >
+              <Share2 className="w-4 h-4" />
               Share Profile
             </button>
           </div>
@@ -323,25 +345,25 @@ export default function DashboardPage() {
         <div className="mt-12">
           <h3 className="text-2xl font-bold mb-6">Quick Actions</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="bg-bg-secondary rounded-xl border border-border p-6 hover:border-secondary transition-colors text-center">
+            <button onClick={() => router.push('/challenges')} className="bg-bg-secondary rounded-xl border border-border p-6 hover:border-secondary transition-colors text-center">
               <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-secondary/10 flex items-center justify-center">
                 <Target className="w-6 h-6 text-secondary" />
               </div>
               <div className="font-medium">Join Challenge</div>
             </button>
-            <button className="bg-bg-secondary rounded-xl border border-border p-6 hover:border-secondary transition-colors text-center">
+            <button onClick={() => router.push('/events')} className="bg-bg-secondary rounded-xl border border-border p-6 hover:border-secondary transition-colors text-center">
               <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Calendar className="w-6 h-6 text-primary" />
               </div>
               <div className="font-medium">Register Event</div>
             </button>
-            <button className="bg-bg-secondary rounded-xl border border-border p-6 hover:border-secondary transition-colors text-center">
+            <button onClick={() => router.push('/projects')} className="bg-bg-secondary rounded-xl border border-border p-6 hover:border-secondary transition-colors text-center">
               <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-green-500/10 flex items-center justify-center">
                 <FileText className="w-6 h-6 text-green-500" />
               </div>
               <div className="font-medium">Submit Project</div>
             </button>
-            <button className="bg-bg-secondary rounded-xl border border-border p-6 hover:border-secondary transition-colors text-center">
+            <button onClick={() => router.push('/leaderboard')} className="bg-bg-secondary rounded-xl border border-border p-6 hover:border-secondary transition-colors text-center">
               <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-amber-500/10 flex items-center justify-center">
                 <Trophy className="w-6 h-6 text-amber-500" />
               </div>
