@@ -26,7 +26,11 @@ export default function LoginPage() {
       })
 
       if (error) {
-        toast.error(error.message)
+        if (error.message.toLowerCase().includes('email not confirmed')) {
+          toast.error("Please confirm your email or disable confirmation in Supabase settings.")
+        } else {
+          toast.error(error.message)
+        }
       } else {
         toast.success("Logged in successfully!")
         router.push("/dashboard")
