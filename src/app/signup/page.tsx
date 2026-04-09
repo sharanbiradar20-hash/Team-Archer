@@ -119,13 +119,12 @@ export default function SignUpPage() {
                 <select
                   value={batchYear}
                   onChange={(e) => setBatchYear(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-bg-primary border border-border focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none text-white dark:text-white"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-900 border border-border focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none text-white font-medium"
                   required
-                  style={{ colorScheme: 'dark' }}
                 >
-                  <option value="" className="bg-bg-primary text-white">Select batch year</option>
+                  <option value="" className="text-gray-400 bg-gray-900">Select batch year</option>
                   {BATCH_YEARS.map((year) => (
-                    <option key={year} value={year} className="bg-bg-primary text-white">
+                    <option key={year} value={year} className="text-white bg-gray-900">
                       {year}
                     </option>
                   ))}
