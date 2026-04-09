@@ -1,4 +1,8 @@
-<<<<<<< HEAD
+
+
+PROJECT DEPLOYMENT LINK : https://team-archer-g6swjrmkx-sharanbiradar20-hashs-projects.vercel.app/
+
+
 # ClubNexus - Centralized Platform for College Technical Clubs
 
 ![ClubNexus Banner](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
